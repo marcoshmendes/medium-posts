@@ -4,22 +4,36 @@ var Feed = require('rss-to-json');
 var app = express();
 
 app.get('/list', (req, res) => {
-	Feed.load('https://medium.com/feed/@marcoshmendes', function(err, rss){
+	var username = req.param('username');
+
+	if (!username) {
+		res.json({
+    		status: 'error',
+    		message: 'missing username param'
+    	});
+    	return;
+	}
+
+	Feed.load('https://medium.com/feed/@' + username, function(err, rss){
 	    if (err) {
 	    	res.json({
 	    		status: 'error',
-	    		err: err
+	    		message: err
 	    	});
 	    	return;
 	    }
 
 	    if (!rss.items) {
-	    	return;
+		    res.json({
+	    		status: 'success',
+	    		message: 'no posts'
+	    	});
+  			return;
 	    }
 
 	    res.json({
 	    	status: 'success',
-	    	data: rss.itens
+	    	data: rss.items
 	    });
 	});
 });
